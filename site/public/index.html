@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ghostpay · private payment links on Robinhood Chain</title>
+<meta name="description" content="Stealth payment links for ETH, USDG and Stock Tokens on Robinhood Chain. Every payment lands on a fresh one-time address only you can open.">
+<meta property="og:title" content="Ghostpay">
+<meta property="og:description" content="Get paid in ETH, USDG and Stock Tokens without showing your wallet. Stealth addresses, ERC-5564.">
+<meta property="og:image" content="https://ghostpayfin.xyz/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a>
+  <nav><a href="#how">How it works</a><a href="#assets">Assets</a><a href="/docs">Docs</a></nav>
+  <a class="btn btn-acc" href="/app/">Open app</a>
+</div></header>
+
+<main>
+<section class="hero">
+  <div id="ghosts" aria-hidden="true"></div>
+  <h1>Get paid<em>without a trace</em></h1>
+  <div class="live"><span class="dot"></span>Live on Robinhood Chain</div>
+  <div class="side">
+    <p>One link for ETH, USDG and Stock Tokens. Each payment lands on an address that has never existed before, and only your keys can find it. Your wallet never appears.</p>
+    <div class="cta"><a class="btn btn-acc" href="/app/#receive">Create my link</a><a class="btn btn-ghost" href="/app/">Pay someone</a></div>
+    <div id="caBox"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="demo">
+    <div class="card">
+      <div class="url">ghostpayfin.xyz/pay/<b id="demoName"></b></div>
+      <ol id="demoAddrs"><li><span>payment 1</span><span>waiting</span></li><li><span>payment 2</span><span>waiting</span></li><li><span>payment 3</span><span>waiting</span></li></ol>
+    </div>
+    <div class="note"><b>Same link, three strangers on chain.</b>Nothing in the explorer ties these addresses to each other or to you. Your inbox sees all three.</div>
+  </div>
+
+  <div class="split">
+    <div class="t"><h2>What the explorer shows</h2><p>On the left, the public record. On the right, the same three payments in your inbox.</p></div>
+    <div class="ledger">
+      <div><h3>Explorer<span>anyone</span></h3>
+        <p><span>0x7c3e…19b4</span><b>250 USDG</b></p><p><span>0x0fa1…c6d2</span><b>0.4 NVDA</b></p><p><span>0xd94b…7e01</span><b>0.12 ETH</b></p></div>
+      <div class="you"><h3>Your inbox<span>only you</span></h3>
+        <p><span>ready</span><b>250 USDG</b></p><p><span>ready</span><b>0.4 NVDA</b></p><p><span>collected</span><b>0.12 ETH</b></p></div>
+    </div>
+  </div>
+
+  <div class="split" id="how">
+    <div class="t"><h2>How it works</h2><p>Stealth addresses, ERC-5564. No mixer, no pool, no custody.</p></div>
+    <div class="steps">
+      <div><i>i</i><span><h3>Sign once, get two keys</h3><p>Your wallet signs one message. A spending key and a viewing key are derived from it in your browser. Their public half is your link, under a name you claim.</p></span></div>
+      <div><i>ii</i><span><h3>Every payment gets a new address</h3><p>The payer's browser mixes your public keys with fresh randomness. The contract sends the money to the result and posts a short public note.</p></span></div>
+      <div><i>iii</i><span><h3>Your viewing key finds it</h3><p>Your inbox reads the notes, recognises yours and rebuilds each address key. Collect to any wallet when you want.</p></span></div>
+    </div>
+  </div>
+
+  <div class="split" id="assets">
+    <div class="t"><h2>Get paid in stocks</h2><p>Every token payment carries 0.00002 ETH so the address can pay its own gas later.</p></div>
+    <div class="assets" id="cloud"></div>
+  </div>
+
+  <div class="split">
+    <div class="t"><h2>Questions</h2></div>
+    <div class="qa">
+      <div><b>Who holds the money?</b><p>You. Each payment sits on its own address and only your keys can move it. The contract has no owner and keeps nothing.</p></div>
+      <div><b>What can people see?</b><p>That some address received some amount. Not that it was you, and not that two payments went to the same person.</p></div>
+      <div><b>Where do my keys live?</b><p>In the open tab only. Signing the same message again, on any device, gives the same keys.</p></div>
+      <div><b>What does it cost?</b><p>No fee. Robinhood Chain gas, a fraction of a cent.</p></div>
+      <div><b>Is collecting private too?</b><p>Collect to a fresh wallet to keep it private. Collecting to your main wallet links that payment to it.</p></div>
+      <div><b>Audited?</b><p>No. The contract is about a hundred lines with no owner; read it in the docs.</p></div>
+    </div>
+  </div>
+
+  <div class="final"><h2>One link. No trail.</h2><div><p>Claim a name and share it anywhere. Payments stay off your wallet.</p><a class="btn btn-acc" href="/app/#receive">Create my link</a></div></div>
+</div>
+</main>
+
+<footer><div class="wrap">
+  <div><a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a><p class="note">Stealth payments on Robinhood Chain. Unaudited software.</p></div>
+  <div class="cols">
+    <div class="col"><b>Product</b><a href="/app/">App</a><a href="/app/#receive">Create link</a><a href="/app/#inbox">Inbox</a><a href="/docs">Docs</a></div>
+    <div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a></div>
+    <div class="col"><b>Token</b><a id="tokLink" href="#">Soon</a></div>
+  </div>
+</div></footer>
+<script src="/config.js"></script>
+<script type="module" src="/landing.js"></script>
+</body>
+</html>
