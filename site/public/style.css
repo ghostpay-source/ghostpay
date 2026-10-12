@@ -201,3 +201,18 @@ footer .brand svg{width:42px;height:42px}
 .docs code{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--acc)}
 .docs table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14.5px}.docs td{border-bottom:1px solid var(--line);padding:11px 4px;color:#aab1c4}.docs td:first-child{color:var(--ink)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* app on wide screens: centred frame, form in a card, flow under it */
+.dash{max-width:1280px;width:100%;margin:0 auto;grid-template-columns:210px 1fr 310px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.work{max-width:none;padding:36px 40px}
+.work .panel{border:1px solid var(--line);border-radius:var(--r);background:var(--s1);padding:30px 32px 32px}
+.flow{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;border:1px solid var(--line);border-radius:var(--r)}
+.flow div{padding:18px 20px;border-right:1px solid var(--line)}.flow div:last-child{border-right:0}
+.flow b{display:block;font:500 15px "Space Grotesk",sans-serif;margin-top:8px}.flow p{color:var(--dim);font-size:13px;margin-top:4px}
+@media(max-width:1100px){.dash{grid-template-columns:200px 1fr}}
+@media(max-width:760px){.dash{grid-template-columns:1fr;border:0}.work{padding:20px 14px}.work .panel{padding:22px 18px}.flow{grid-template-columns:1fr}.flow div{border-right:0;border-bottom:1px solid var(--line)}}
+.dash{grid-template-columns:210px minmax(0,1fr) 310px}
+.work,.work .panel,.field,.amt{min-width:0}
+@media(max-width:1100px){.dash{grid-template-columns:200px minmax(0,1fr)}}
+@media(max-width:760px){.dash{grid-template-columns:minmax(0,1fr)}.top .wrap{gap:12px}}
+.dash{min-height:calc(100vh - 67px - 160px)}
