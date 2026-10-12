@@ -8,6 +8,7 @@ window.CFG = {
   chainName: "Robinhood Chain",
   native: "ETH",
   rpc: "https://rpc.mainnet.chain.robinhood.com",
+  rpcs: ["https://rpc.mainnet.chain.robinhood.com", "https://robinhood.drpc.org"],
   explorer: "https://robinhoodchain.blockscout.com",
   nativeMarker: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
   gasTip: "0.00002",

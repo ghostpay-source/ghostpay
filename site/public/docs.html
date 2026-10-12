@@ -2,17 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ghostpay docs</title>
+<meta name="description" content="Stealth payment links for ETH, USDG and Stock Tokens on Robinhood Chain. Every payment lands on a fresh one-time address only you can open.">
+<meta property="og:title" content="Ghostpay">
+<meta property="og:description" content="Get paid in ETH, USDG and Stock Tokens without showing your wallet. Stealth addresses, ERC-5564.">
 <meta property="og:image" content="https://ghostpayfin.xyz/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#080a10">
 <link rel="icon" href="/icon.png">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/style.css?v=11">
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a>
+  <a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   <nav><a href="/">Home</a></nav>
-  <a class="btn btn-acc" href="/app/">Open app</a>
+  <div class="right"><a class="btn btn-acc" href="/app/">Open app</a></div>
 </div></header>
 <main><div class="wrap"><div class="docs">
 <h1>Docs</h1><div>
@@ -60,9 +65,13 @@
 <li>The page asks the worker only for public announcements; your keys and matches never leave the browser.</li>
 </ul>
 </div></div></div></main>
-<footer><div class="wrap"><div><a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a></div><div class="cols"><div class="col"><b>Product</b><a href="/app/">App</a></div><div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a><a href="https://github.com/ghostpay-source/ghostpay" target="_blank" rel="noopener">GitHub</a></div></div></div></footer>
-<script>
-fetch("/deployment.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.stealthPay){const a=document.getElementById("addr");a.innerHTML='<a href="https://robinhoodchain.blockscout.com/address/'+d.stealthPay+'" target="_blank" rel="noopener">'+d.stealthPay+"</a>";}}).catch(()=>{});
-</script>
+<footer><div class="wrap">
+  <div><a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a><p class="note">Stealth payments on Robinhood Chain. Unaudited software.</p></div>
+  <div class="cols">
+    <div class="col"><b>Product</b><a href="/app/">App</a><a href="/app/#receive">Create link</a><a href="/app/#inbox">Inbox</a><a href="/docs">Docs</a></div>
+    <div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a><a href="https://github.com/ghostpay-source/ghostpay" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="col"><b>Token</b><a id="tokLink" href="#">Soon</a></div>
+  </div>
+</div></footer>
 </body>
 </html>
