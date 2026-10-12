@@ -4,99 +4,111 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ghostpay app · pay privately, get paid privately</title>
-<meta name="description" content="Stealth payment links for ETH, USDG and Stock Tokens on Robinhood Chain. Every payment lands on a fresh one-time address only you can open.">
-<meta property="og:title" content="Ghostpay">
-<meta property="og:description" content="Get paid in ETH, USDG and Stock Tokens without showing your wallet. Stealth addresses, ERC-5564.">
 <meta property="og:image" content="https://ghostpayfin.xyz/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#080a10">
+<meta name="theme-color" content="#07080d">
 <link rel="icon" href="/icon.png">
-<link rel="stylesheet" href="/style.css?v=11">
+<link rel="stylesheet" href="/style.css?v=13">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+<header class="top"><div class="wrap" style="max-width:none">
+  <a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="32" height="32" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   <nav><a href="/">Home</a><a href="/docs">Docs</a></nav>
   <div class="right"><button class="btn btn-acc" id="walletBtn">Connect wallet</button></div>
 </div></header>
 <main>
-<div class="appw">
-  <div class="apphead">
-    <div class="tabs"><button data-tab="pay">Send</button><button data-tab="receive">Receive</button><button data-tab="inbox">Inbox</button></div>
-    <span class="netpill mono"><span class="dot"></span>Robinhood Chain</span>
-  </div>
-  <div class="banner" id="prelaunch" hidden>Contract deploys at launch. Actions open the moment it is live.</div>
-
-  <div class="panel" data-pane="pay">
-    <div class="field">
-      <div class="lbl"><span>To</span></div>
-      <input class="input" id="payTo" placeholder="@name or st:rh:0x…" autocomplete="off" spellcheck="false">
+<div class="dash">
+  <aside class="rail">
+    <div class="tabs">
+      <button data-tab="pay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Pay</button>
+      <button data-tab="receive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>My link</button>
+      <button data-tab="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h4l2 3h4l2-3h4M5 5h14l1 8v6H4v-6z"/></svg>Inbox</button>
     </div>
-    <div class="who" id="payWho"></div>
-    <div class="field">
+    <div class="netpill"><span class="dot"></span>Robinhood Chain</div>
+  </aside>
+
+  <div class="work">
+    <div class="banner" id="prelaunch" hidden>The contract deploys at launch. The app opens the moment it is live.</div>
+
+    <div class="panel" data-pane="pay">
+      <h1>Pay privately</h1><p class="lead">The money goes to a brand new address that only the receiver can open.</p>
+      <div class="lbl">To</div>
+      <div class="field"><input class="input" id="payTo" placeholder="@name or st:rh:0x…" autocomplete="off" spellcheck="false"></div>
+      <div class="who" id="payWho"></div>
       <div class="lbl"><span>Amount</span><span><span id="payBal"></span> <button id="payMax">Max</button></span></div>
-      <div class="amt"><input id="payAmt" inputmode="decimal" placeholder="0" autocomplete="off"><button type="button" class="tsel" id="payUnit">ETH</button></div>
+      <div class="field"><div class="amt"><input id="payAmt" inputmode="decimal" placeholder="0" autocomplete="off"><button type="button" class="tsel" id="payUnit">ETH</button></div></div>
       <div class="chips" id="payTokens"></div>
+      <div class="hint" id="payGas"></div>
+      <button class="btn btn-acc big" id="payBtn">Pay</button>
+      <div id="payLog"></div>
     </div>
-    <div class="hint" id="payGas"></div>
-    <button class="btn btn-acc big" id="payBtn">Send</button>
-    <div id="payLog"></div>
-  </div>
 
-  <div class="panel" data-pane="receive" hidden>
-    <div id="rcvKeys">
-      <div class="intro"><h3>Your private inbox</h3><p>Sign one free message. Your spending and viewing keys come from it, in this browser only, and come back the same on any device.</p></div>
-      <button class="btn btn-acc big" id="rcvMake">Create my keys</button>
-    </div>
-    <div id="rcvReady" hidden>
-      <div class="field">
-        <div class="lbl"><span>Claim a name</span></div>
-        <div class="row"><input class="input" id="rcvName" placeholder="yourname" autocomplete="off" spellcheck="false"><button class="btn btn-acc" id="rcvClaim">Claim</button></div>
+    <div class="panel" data-pane="receive" hidden>
+      <h1>Your link</h1><p class="lead">One name, any number of payments, none of them on your wallet.</p>
+      <div id="rcvKeys">
+        <div class="intro"><p>Your wallet signs one message: free, nothing is sent. Two private keys are derived from it in this browser. Sign again on any device to get the same keys.</p></div>
+        <button class="btn btn-acc big" id="rcvMake">Create my keys</button>
       </div>
-      <div class="hint">3-20 characters: a-z, 0-9, _. One transaction, gas only.</div>
-      <div class="field" style="margin-top:12px">
+      <div id="rcvReady" hidden>
+        <div class="lbl">Claim a name</div>
+        <div class="field"><div class="row"><input class="input" id="rcvName" placeholder="yourname" autocomplete="off" spellcheck="false"><button class="btn btn-acc" id="rcvClaim">Claim</button></div></div>
+        <div class="hint">3-20 characters: a-z, 0-9, _. One transaction, gas only.</div>
         <div class="lbl"><span>Your link</span><button id="rcvCopyLink">Copy</button></div>
-        <div class="keybox" id="rcvLink" style="color:var(--acc)"></div>
-      </div>
-      <div class="field">
+        <div class="keybox" id="rcvLink" style="color:var(--acc);font-size:15px"></div>
         <div class="lbl"><span>Meta-address</span><button id="rcvCopyMeta">Copy</button></div>
         <div class="keybox" id="rcvMeta"></div>
       </div>
     </div>
+
+    <div class="panel" data-pane="inbox" hidden>
+      <h1>Inbox</h1><p class="lead">Every payment on chain, checked against your viewing key in this browser.</p>
+      <div id="inLocked">
+        <div class="intro"><p>Sign the key message to unlock. Nothing about you is sent anywhere.</p></div>
+        <button class="btn btn-acc big" id="inUnlock">Unlock inbox</button>
+      </div>
+      <div id="inOpen" hidden>
+        <div class="lbl"><span id="inState">…</span><button id="inRefresh">Refresh</button></div>
+        <div id="inList"></div>
+        <div class="lbl">Collect to</div>
+        <div class="field"><input class="input mono" id="inTo" placeholder="0x… a fresh wallet keeps it private" autocomplete="off" spellcheck="false" style="font-size:14px"></div>
+        <div class="hint">Collecting to your main wallet links these payments to it.</div>
+        <button class="btn btn-acc big" id="inCollect">Collect</button>
+      </div>
+    </div>
   </div>
 
-  <div class="panel" data-pane="inbox" hidden>
-    <div id="inLocked">
-      <div class="intro"><h3>Inbox</h3><p>Sign the key message to check every payment on chain with your viewing key, locally.</p></div>
-      <button class="btn btn-acc big" id="inUnlock">Unlock inbox</button>
+  <aside class="side">
+    <div class="card">
+      <div class="ghost"><svg viewBox="0 0 100 100" width="26" height="26"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#b9c6ff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h3 id="sideName">No link yet</h3>
+      <p id="sideHint">Create your keys and claim a name in My link. A QR code for it appears here.</p>
+      <div id="qr"></div>
     </div>
-    <div id="inOpen" hidden>
-      <div class="lbl" style="padding:0 4px"><span id="inState" class="mono">…</span><button id="inRefresh">Rescan</button></div>
-      <div id="inList"></div>
-      <div class="field" style="margin-top:8px">
-        <div class="lbl"><span>Collect to</span></div>
-        <input class="input mono" id="inTo" placeholder="0x… a fresh wallet keeps it private" autocomplete="off" spellcheck="false" style="font-size:14px">
-      </div>
-      <div class="hint">Collecting to your main wallet links these payments to it.</div>
-      <button class="btn btn-acc big" id="inCollect">Collect</button>
-    </div>
-  </div>
+    <div class="card"><span class="tag">Keep it private</span><p>Collect to a fresh wallet. Do not reuse the address you pay from. Amounts and times are public, owners are not.</p></div>
+  </aside>
 </div>
-<p class="appnote mono">keys stay in this tab · no protocol fee · unaudited</p>
 </main>
-<footer><div class="wrap">
-  <div><a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a><p class="note">Unaudited software, use at your own risk.</p></div>
-  <div class="cols"><div class="col"><b>Product</b><a href="/">Home</a><a href="/docs">Docs</a></div><div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a><a href="https://github.com/ghostpay-source/ghostpay" target="_blank" rel="noopener">GitHub</a></div></div>
-</div></footer>
 <div class="modal" id="wmodal" onclick="if(event.target===this)this.classList.remove('open')"><div class="panel"><div class="lbl">Choose a wallet</div><div id="wlist"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
-// inside Telegram (Mini App): full height, dark header, no page chrome
+// inside Telegram (Mini App): full height, dark header
 const tg = window.Telegram?.WebApp;
-if (tg?.initData !== undefined && tg.platform !== "unknown") { tg.ready(); tg.expand(); tg.setHeaderColor?.("#080a10"); tg.setBackgroundColor?.("#080a10"); document.documentElement.classList.add("tg"); }
+if (tg?.initData !== undefined && tg.platform !== "unknown") { tg.ready(); tg.expand(); tg.setHeaderColor?.("#07080d"); tg.setBackgroundColor?.("#07080d"); document.documentElement.classList.add("tg"); }
 </script>
-<script src="/config.js?v=11"></script>
-<script type="module" src="/app.js?v=11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// the side card mirrors your link and draws its QR code once a name is claimed
+new MutationObserver(() => {
+  const t = document.getElementById("rcvLink").textContent.trim();
+  if (!/\/pay\//.test(t)) return;
+  document.getElementById("sideName").textContent = "@" + t.split("/pay/")[1];
+  document.getElementById("sideHint").textContent = "https://" + t;
+  const q = document.getElementById("qr"); q.innerHTML = ""; q.classList.add("on");
+  new QRCode(q, { text: "https://" + t, width: 300, height: 300, colorDark: "#07080d", colorLight: "#ffffff" });
+}).observe(document.getElementById("rcvLink"), { childList: true, characterData: true, subtree: true });
+</script>
+<script src="/config.js?v=13"></script>
+<script type="module" src="/app.js?v=13"></script>
 </body>
 </html>
