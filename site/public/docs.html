@@ -60,7 +60,7 @@
 <li>The page asks the worker only for public announcements; your keys and matches never leave the browser.</li>
 </ul>
 </div></div></div></main>
-<footer><div class="wrap"><div><a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a></div><div class="cols"><div class="col"><b>Product</b><a href="/app/">App</a></div><div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a></div></div></div></footer>
+<footer><div class="wrap"><div><a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a></div><div class="cols"><div class="col"><b>Product</b><a href="/app/">App</a></div><div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a><a href="https://github.com/ghostpay-source/ghostpay" target="_blank" rel="noopener">GitHub</a></div></div></div></footer>
 <script>
 fetch("/deployment.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.stealthPay){const a=document.getElementById("addr");a.innerHTML='<a href="https://robinhoodchain.blockscout.com/address/'+d.stealthPay+'" target="_blank" rel="noopener">'+d.stealthPay+"</a>";}}).catch(()=>{});
 </script>
