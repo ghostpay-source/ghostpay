@@ -8,11 +8,11 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#07080d">
 <link rel="icon" href="/icon.png">
-<link rel="stylesheet" href="/style.css?v=13">
+<link rel="stylesheet" href="/style.css?v=17">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<header class="top"><div class="wrap" style="max-width:none">
+<header class="top"><div class="wrap" style="max-width:1280px;padding:0 20px">
   <a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="32" height="32" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   <nav><a href="/">Home</a><a href="/docs">Docs</a></nav>
   <div class="right"><button class="btn btn-acc" id="walletBtn">Connect wallet</button></div>
@@ -76,6 +76,11 @@
         <button class="btn btn-acc big" id="inCollect">Collect</button>
       </div>
     </div>
+    <div class="flow" id="flow">
+      <div><span class="tag">01 · your browser</span><b>Reads the name</b><p>Finds the receiver's public keys on chain.</p></div>
+      <div><span class="tag">02 · your browser</span><b>Makes a new address</b><p>Their keys plus fresh randomness. Used once.</p></div>
+      <div><span class="tag">03 · contract</span><b>Forwards and posts a note</b><p>Money lands there; only their key finds it.</p></div>
+    </div>
   </div>
 
   <aside class="side">
@@ -89,6 +94,10 @@
   </aside>
 </div>
 </main>
+<footer><div class="wrap">
+  <div><a class="brand" href="/" aria-label="Ghostpay home"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><path d="M 20 86 V 46 A 30 30 0 0 1 80 46 V 86 L 70 79 L 60 86 L 50 79 L 40 86 L 30 79 Z M 40 44 V 52 M 60 44 V 52" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></a><p class="note">Unaudited software, use at your own risk.</p></div>
+  <div class="cols"><div class="col"><b>Product</b><a href="/">Home</a><a href="/docs">Docs</a></div><div class="col"><b>Community</b><a href="https://x.com/ghostpay_fin" target="_blank" rel="noopener">X</a><a href="https://github.com/ghostpay-source/ghostpay" target="_blank" rel="noopener">GitHub</a></div></div>
+</div></footer>
 <div class="modal" id="wmodal" onclick="if(event.target===this)this.classList.remove('open')"><div class="panel"><div class="lbl">Choose a wallet</div><div id="wlist"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -108,7 +117,7 @@ new MutationObserver(() => {
   new QRCode(q, { text: "https://" + t, width: 300, height: 300, colorDark: "#07080d", colorLight: "#ffffff" });
 }).observe(document.getElementById("rcvLink"), { childList: true, characterData: true, subtree: true });
 </script>
-<script src="/config.js?v=13"></script>
-<script type="module" src="/app.js?v=13"></script>
+<script src="/config.js?v=17"></script>
+<script type="module" src="/app.js?v=17"></script>
 </body>
 </html>
