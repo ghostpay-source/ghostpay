@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ghostpay app · pay privately, get paid privately</title>
+<meta property="og:image" content="https://ghostpayfin.xyz/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icon.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a>
+  <nav><a href="/">Home</a><a href="/docs">Docs</a></nav>
+  <button class="btn btn-acc" id="walletBtn">Connect wallet</button>
+</div></header>
+<main><div class="wrap"><div class="app">
+  <div class="intro">
+    <h1>Pay or<br>get paid.</h1>
+    <p class="sub">Every payment goes to a new address. Your keys stay in this tab.</p>
+    <div class="tabs"><button data-tab="pay">Pay someone</button><button data-tab="receive">Your link</button><button data-tab="inbox">Inbox</button></div>
+  </div>
+  <div>
+  <div class="banner" id="prelaunch" hidden>The contract deploys at launch. The app opens the moment it is live.</div>
+
+  <div class="panel" data-pane="pay">
+    <div class="lbl">To</div>
+    <input class="input" id="payTo" placeholder="name or st:rh:0x… meta-address" autocomplete="off" spellcheck="false">
+    <div class="who" id="payWho"></div>
+    <div class="lbl">Asset</div>
+    <div class="chips" id="payTokens"></div>
+    <div class="lbl"><span>Amount</span><span><span id="payBal"></span> <button id="payMax">Max</button></span></div>
+    <div class="amt"><input id="payAmt" inputmode="decimal" placeholder="0" autocomplete="off"><span id="payUnit">ETH</span></div>
+    <div class="hint" id="payGas"></div>
+    <button class="btn btn-acc big" id="payBtn">Pay</button>
+    <div id="payLog"></div>
+  </div>
+
+  <div class="panel" data-pane="receive" hidden>
+    <div id="rcvKeys">
+      <div class="lbl">Your receiving keys</div>
+      <p class="muted" style="font-size:14px">Your wallet signs one message (free, nothing is sent). Two private keys are derived from it in this browser. Sign the same message on any device to get them back.</p>
+      <button class="btn btn-acc big" id="rcvMake">Create my keys</button>
+    </div>
+    <div id="rcvReady" hidden>
+      <div class="lbl"><span>Your meta-address</span><button id="rcvCopyMeta">Copy</button></div>
+      <div class="keybox" id="rcvMeta"></div>
+      <div class="lbl">Claim a name</div>
+      <div class="row"><input class="input" id="rcvName" placeholder="yourname" autocomplete="off" spellcheck="false"><button class="btn btn-acc" id="rcvClaim" style="height:52px">Claim name</button></div>
+      <div class="hint">3-20 characters: a-z, 0-9, _. One transaction, gas only.</div>
+      <div class="lbl"><span>Your link</span><button id="rcvCopyLink">Copy</button></div>
+      <div class="keybox" id="rcvLink" style="color:var(--acc)"></div>
+    </div>
+  </div>
+
+  <div class="panel" data-pane="inbox" hidden>
+    <div id="inLocked">
+      <div class="lbl">Inbox</div>
+      <p class="muted" style="font-size:14px">Sign the key message to check every payment on chain against your viewing key. It runs in this browser; nothing about you is sent anywhere.</p>
+      <button class="btn btn-acc big" id="inUnlock">Unlock inbox</button>
+    </div>
+    <div id="inOpen" hidden>
+      <div class="lbl"><span id="inState">…</span><button id="inRefresh">Refresh</button></div>
+      <div id="inList"></div>
+      <div class="lbl">Collect to</div>
+      <input class="input mono" id="inTo" placeholder="0x… a fresh wallet keeps it private" autocomplete="off" spellcheck="false" style="font-size:14px">
+      <div class="hint">Collecting to your main wallet links these payments to it. A fresh wallet keeps them private.</div>
+      <button class="btn btn-acc big" id="inCollect">Collect</button>
+    </div>
+  </div>
+  </div>
+</div></div></main>
+<footer><div class="wrap">
+  <div><a class="brand" href="/"><img src="/icon.png" alt="">Ghostpay</a><p class="note" style="margin-top:12px">Unaudited software, use at your own risk.</p></div>
+  <div class="cols"><div class="col"><b>Product</b><a href="/">Home</a><a href="/docs">Docs</a></div><div class="col"><b>Community</b><a href="https://x.com/useghostpay" target="_blank" rel="noopener">X</a></div></div>
+</div></footer>
+<div class="modal" id="wmodal" onclick="if(event.target===this)this.classList.remove('open')"><div class="panel"><div class="lbl">Choose a wallet</div><div id="wlist"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="/config.js"></script>
+<script type="module" src="/app.js"></script>
+</body>
+</html>
