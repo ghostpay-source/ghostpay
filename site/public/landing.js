@@ -1,42 +1,119 @@
-// Landing: one-time addresses surface and fade behind the headline (they are random, like the real ones),
-// the link demo, the asset list, totals and the token plate.
+// Landing: ghost addresses behind the hero, a live name check, the constellation, the two-view list,
+// the in-browser stealth demo, grouped assets and the token plate.
 const $ = (s) => document.querySelector(s);
 const CFG = window.CFG;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const hex = (n) => [...crypto.getRandomValues(new Uint8Array(n))].map((b) => b.toString(16).padStart(2, "0")).join("");
+let S = null; // stealth.js, loaded when first needed
+const stealth = async () => (S ||= await import("/stealth.js"));
 
-// ghosts: a fixed set of slots, each address appears, holds, fades, and comes back somewhere else
+// ghosts: a fixed set of slots; each address appears, holds, fades and comes back somewhere else
 const box = $("#ghosts");
-const slots = Array.from({ length: 16 }, () => { const s = document.createElement("span"); box.appendChild(s); return s; });
-function place(s) {
-  s.textContent = "0x" + hex(20);
-  s.style.left = Math.random() * 78 + "%";
-  s.style.top = Math.random() * 88 + "%";
-  s.style.fontSize = 11 + Math.random() * 5 + "px";
-}
-slots.forEach((s, i) => { place(s); if (reduce) s.classList.add("on"); else setTimeout(() => s.classList.add("on"), i * 500); });
-if (!reduce) setInterval(() => {
-  const s = slots[Math.floor(Math.random() * slots.length)];
-  s.classList.remove("on");
-  setTimeout(() => { place(s); s.classList.add("on"); }, 2600);
-}, 900);
+const slots = Array.from({ length: 18 }, () => { const s = document.createElement("span"); box.appendChild(s); return s; });
+function place(s) { s.textContent = "0x" + hex(20); s.style.left = Math.random() * 80 + "%"; s.style.top = Math.random() * 92 + "%"; }
+slots.forEach((s, i) => { place(s); if (reduce) s.classList.add("on"); else setTimeout(() => s.classList.add("on"), i * 400); });
+if (!reduce) setInterval(() => { const s = slots[Math.floor(Math.random() * slots.length)]; s.classList.remove("on"); setTimeout(() => { place(s); s.classList.add("on"); }, 2600); }, 900);
 
-// demo: type a name, each payment gets its own address
-const names = ["maya", "studio_k", "devfund", "alice"];
-let ni = 0;
-async function demo() {
-  const n = names[ni++ % names.length], el = $("#demoName");
-  el.textContent = "";
-  for (const c of n) { el.textContent += c; await new Promise((r) => setTimeout(r, 110)); }
-  const rows = [...document.querySelectorAll("#demoAddrs li")];
-  for (const r of rows) { await new Promise((ok) => setTimeout(ok, 800)); const a = hex(20); r.lastChild.textContent = "0x" + a.slice(0, 6) + "…" + a.slice(-4); r.classList.add("new"); }
-  await new Promise((r) => setTimeout(r, 2600));
-  rows.forEach((r) => { r.classList.remove("new"); r.lastChild.textContent = "waiting"; });
-  demo();
-}
-demo();
+// name check: read the registry straight from the chain
+$("#claimForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const n = $("#claimName").value.trim().toLowerCase().replace(/^@/, ""), st = $("#claimSt");
+  if (!/^[a-z0-9_]{3,20}$/.test(n)) { st.className = "claimst bad"; st.textContent = "3-20 characters: a-z, 0-9, _"; return; }
+  st.className = "claimst"; st.textContent = "checking @" + n + " on Robinhood Chain…";
+  try {
+    const m = await stealth(), W = m.makeChain(CFG);
+    const dep = await fetch("/deployment.json").then((r) => r.json());
+    const [owner] = await W.pub.readContract({ address: dep.stealthPay, abi: m.ABI, functionName: "lookup", args: [n] });
+    if (/^0x0{40}$/i.test(owner)) { st.className = "claimst ok"; st.innerHTML = "@" + n + " is free · <a href=\"/app/?name=" + n + "#receive\">claim it now</a>"; }
+    else { st.className = "claimst bad"; st.innerHTML = "@" + n + " is taken · <a href=\"/pay/" + n + "\">pay @" + n + "</a> or try another"; }
+  } catch { st.className = "claimst bad"; st.textContent = "could not reach the chain, try again"; }
+};
 
-$("#cloud").innerHTML = CFG.tokens.map((t) => '<span class="as"><img src="' + t.logo + '" alt="">' + t.symbol + "</span>").join("") + "<small>ETH and USDG plus the Stock Tokens of Robinhood Chain.</small>";
+// constellation: one receiver, twenty payments; the world sees strangers, the key holder sees one inbox
+const cv = $("#constel"), cg = cv.getContext("2d");
+let view = "world", pts = [], CW = 0, CH = 0, born = 0;
+function sizeC() {
+  const dpr = Math.min(2, devicePixelRatio || 1); CW = cv.clientWidth; CH = cv.clientHeight;
+  cv.width = CW * dpr; cv.height = CH * dpr; cg.setTransform(dpr, 0, 0, dpr, 0, 0);
+  pts = Array.from({ length: 20 }, (_, i) => {
+    const a = (i / 20) * Math.PI * 2 + Math.random() * 0.25, r = 0.28 + Math.random() * 0.17;
+    return { x: CW / 2 + Math.cos(a) * r * CW, y: CH / 2 + 4 + Math.sin(a) * r * CH * 0.78, addr: "0x" + hex(2) + "…" + hex(2), t: i * 9, ph: Math.random() * 6 };
+  });
+}
+let mix = 0, frame = 0;
+function drawC() {
+  frame++; born++;
+  mix += ((view === "owner" ? 1 : 0) - mix) * 0.08;
+  cg.clearRect(0, 0, CW, CH);
+  const cx = CW / 2, cy = CH / 2 + 4;
+  // owner view: lines from the inbox to each payment
+  for (const p of pts) {
+    if (born < p.t) continue;
+    if (mix > 0.02) { cg.strokeStyle = `rgba(185,198,255,${0.32 * mix})`; cg.lineWidth = 1; cg.beginPath(); cg.moveTo(cx, cy); cg.lineTo(p.x, p.y); cg.stroke(); }
+  }
+  for (const p of pts) {
+    if (born < p.t) continue;
+    const k = Math.min(1, (born - p.t) / 30), tw = 0.6 + 0.4 * Math.sin(frame / 30 + p.ph);
+    cg.fillStyle = `rgba(185,198,255,${0.1 * k})`; cg.beginPath(); cg.arc(p.x, p.y, 13, 0, 7); cg.fill();
+    cg.fillStyle = mix > 0.5 ? `rgba(159,227,191,${k})` : `rgba(185,198,255,${k * tw})`; cg.beginPath(); cg.arc(p.x, p.y, 3.5, 0, 7); cg.fill();
+    cg.fillStyle = `rgba(138,146,168,${0.8 * k})`; cg.font = "10.5px JetBrains Mono, monospace"; cg.textAlign = "center"; cg.fillText(p.addr, p.x, p.y + 22);
+  }
+  // the inbox itself only exists for the key holder
+  if (mix > 0.02) {
+    cg.fillStyle = `rgba(185,198,255,${0.14 * mix})`; cg.beginPath(); cg.arc(cx, cy, 34, 0, 7); cg.fill();
+    cg.fillStyle = `rgba(237,240,247,${mix})`; cg.font = "500 13px JetBrains Mono, monospace"; cg.textAlign = "center"; cg.fillText("@you", cx, cy + 5);
+  } else { cg.fillStyle = "rgba(84,92,115,.8)"; cg.font = "12px JetBrains Mono, monospace"; cg.textAlign = "center"; cg.fillText("?", cx, cy + 4); }
+  const shown = pts.filter((p) => born >= p.t).length;
+  $("#cLegend").innerHTML = view === "world" ? "<b>" + shown + "</b> addresses · <b>" + shown + "</b> different owners as far as anyone can tell" : "<b>" + shown + "</b> payments · <b>1</b> inbox · linked only by your viewing key";
+  if (!reduce) requestAnimationFrame(drawC);
+}
+$("#cSeg").querySelectorAll("button").forEach((b) => (b.onclick = () => {
+  view = b.dataset.v; $("#cSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  $("#cTitle").textContent = view === "world" ? "Public explorer" : "Your inbox";
+  if (reduce) drawC();
+}));
+new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); sizeC(); if (reduce) born = 999; drawC(); } }, { rootMargin: "200px" }).observe(cv);
+addEventListener("resize", () => { if (CW) sizeC(); });
+
+// explorer / inbox switch on the same three rows
+$("#vSeg").querySelectorAll("button").forEach((b) => (b.onclick = () => {
+  const mine = b.dataset.v === "mine";
+  $("#vSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  $("#views").classList.toggle("mine", mine);
+  document.querySelectorAll("#views .o").forEach((o) => (o.textContent = mine ? o.dataset.mine : o.dataset.pub));
+}));
+
+// run the math: the app's own stealth code on demo keys for the typed name
+let tryKeys = null, tryN = 0;
+const cleanName = () => ($("#tryName").value.toLowerCase().replace(/[^a-z0-9_]/g, "") || "maya").slice(0, 20);
+async function demoKeys(name) {
+  const h = async (s) => new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
+  const a = await h("ghost demo spend " + name), b = await h("ghost demo view " + name);
+  return (await stealth()).keysFromSignature("0x" + [...a, ...b, 27].map((x) => x.toString(16).padStart(2, "0")).join(""));
+}
+async function tryReset() {
+  tryKeys = await demoKeys(cleanName()); tryN = 0; $("#tryList").innerHTML = "";
+  $("#tryMeta").textContent = "@" + cleanName() + " → st:rh:" + tryKeys.meta.slice(0, 26) + "…" + tryKeys.meta.slice(-8) + "  (demo keys)";
+  for (let i = 0; i < 3; i++) tryPay();
+}
+function tryPay() {
+  if (!tryKeys) return;
+  const s = S.newStealth(tryKeys.meta), ok = !!S.claimKey(tryKeys, s.ephemeral, s.viewTag, s.address);
+  const row = document.createElement("div"); row.className = "tryrow";
+  row.innerHTML = '<span class="n">#' + ++tryN + '</span><span class="a">' + s.address + "<small>ephemeral " + s.ephemeral.slice(0, 18) + "… · view tag " + s.viewTag + '</small></span><span class="ok">' + (ok ? "✓ found by @" + cleanName() : "not found") + "</span>";
+  $("#tryList").prepend(row);
+  while ($("#tryList").children.length > 6) $("#tryList").lastChild.remove();
+}
+let tt; $("#tryName").addEventListener("input", () => { clearTimeout(tt); tt = setTimeout(tryReset, 300); });
+$("#tryGo").onclick = tryPay;
+new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); tryReset().catch(() => ($("#tryMeta").textContent = "could not load the crypto library, refresh")); } }, { rootMargin: "300px" }).observe($("#try"));
+
+// assets in groups
+const pill = (t) => '<span class="as"><img src="' + t.logo + '" alt="">' + t.symbol + "</span>";
+const FUNDS = ["SPY", "QQQ", "GLD"], MONEY = ["ETH", "USDG"];
+$("#gMoney").innerHTML = CFG.tokens.filter((t) => MONEY.includes(t.symbol)).map(pill).join("");
+$("#gFunds").innerHTML = CFG.tokens.filter((t) => FUNDS.includes(t.symbol)).map(pill).join("");
+$("#gStocks").innerHTML = CFG.tokens.filter((t) => !MONEY.includes(t.symbol) && !FUNDS.includes(t.symbol)).map(pill).join("");
 
 fetch("/token.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((t) => {
   if (!t?.ca) return;
@@ -44,91 +121,3 @@ fetch("/token.json", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)
   $("#ca").onclick = () => { navigator.clipboard.writeText(t.ca); $("#ca").querySelector("span").textContent = "Copied"; };
   if (t.url) { $("#tokLink").textContent = "$" + t.ticker; $("#tokLink").href = t.url; }
 }).catch(() => {});
-
-// ---------- "see where the money lands": six payers, one receiver, two outcomes ----------
-const reduceMotion2 = matchMedia("(prefers-reduced-motion: reduce)").matches;
-function vizSetup(cv) {
-  const dpr = Math.min(2, devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight;
-  cv.width = w * dpr; cv.height = h * dpr;
-  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
-  return { g, w, h };
-}
-const payers = Array.from({ length: 6 }, (_, i) => i);
-function viz() {
-  const A = vizSetup($("#vizA")), B = vizSetup($("#vizB"));
-  const py = (h, i) => 40 + (i * (h - 80)) / 5, px = 46;
-  // Murk: one-time addresses scattered over the right side
-  const spots = [], flights = [];
-  let t = 0, nextPay = 0, made = 0;
-  const rnd = (a, b) => a + Math.random() * (b - a);
-  function payer(g, x, y) { g.fillStyle = "#1f1f23"; g.strokeStyle = "#323238"; g.lineWidth = 1; g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill(); g.stroke(); }
-  function frame() {
-    t++;
-    if (t >= nextPay) {
-      const i = Math.floor(Math.random() * 6);
-      const spot = { x: rnd(B.w * 0.55, B.w - 30), y: rnd(30, B.h - 30), born: 0, i };
-      flights.push({ i, p: 0, spot });
-      nextPay = t + 38;
-    }
-    for (const C of [A, B]) { C.g.clearRect(0, 0, C.w, C.h); }
-    // normal: every payment line ends at the same wallet
-    const rx = A.w - 60, ry = A.h / 2;
-    A.g.strokeStyle = "rgba(240,138,122,.28)"; A.g.lineWidth = 1;
-    for (const i of payers) { A.g.beginPath(); A.g.moveTo(px, py(A.h, i)); A.g.bezierCurveTo(A.w * 0.5, py(A.h, i), A.w * 0.55, ry, rx, ry); A.g.stroke(); payer(A.g, px, py(A.h, i)); }
-    const pulse = 0.5 + 0.5 * Math.sin(t / 14);
-    A.g.fillStyle = `rgba(240,138,122,${0.12 + 0.12 * pulse})`; A.g.beginPath(); A.g.arc(rx, ry, 30 + 6 * pulse, 0, 7); A.g.fill();
-    A.g.fillStyle = "#f08a7a"; A.g.beginPath(); A.g.arc(rx, ry, 11, 0, 7); A.g.fill();
-    A.g.fillStyle = "#8d8d96"; A.g.font = "11px Geist Mono, monospace"; A.g.textAlign = "center"; A.g.fillText("your wallet", rx, ry + 34);
-    // murk: payers, then a fresh dot per payment, no shared endpoint
-    for (const i of payers) payer(B.g, px, py(B.h, i));
-    for (const s of spots) {
-      s.born = Math.min(1, s.born + 0.04);
-      B.g.fillStyle = `rgba(127,212,160,${0.12 * s.born})`; B.g.beginPath(); B.g.arc(s.x, s.y, 12, 0, 7); B.g.fill();
-      B.g.fillStyle = `rgba(127,212,160,${0.85 * s.born})`; B.g.beginPath(); B.g.arc(s.x, s.y, 4, 0, 7); B.g.fill();
-    }
-    for (const f of flights) {
-      f.p = Math.min(1, f.p + 0.022);
-      const e = f.p < 0.5 ? 2 * f.p * f.p : 1 - (-2 * f.p + 2) ** 2 / 2;
-      // the same payment travels on both canvases
-      const ay = py(A.h, f.i), by = py(B.h, f.i);
-      const ax = px + (rx - px) * e, ay2 = ay + (ry - ay) * e;
-      A.g.fillStyle = "#b9c6ff"; A.g.beginPath(); A.g.arc(ax, ay2, 3.5, 0, 7); A.g.fill();
-      const bx = px + (f.spot.x - px) * e, by2 = by + (f.spot.y - by) * e;
-      B.g.fillStyle = "#b9c6ff"; B.g.beginPath(); B.g.arc(bx, by2, 3.5, 0, 7); B.g.fill();
-      if (f.p === 1 && !f.done) { f.done = true; spots.push(f.spot); made++; if (spots.length > 26) spots.shift(); $("#vizBn").textContent = made + " one-time address" + (made > 1 ? "es" : "") + " · none linked"; }
-    }
-    for (let k = flights.length - 1; k >= 0; k--) if (flights[k].done) flights.splice(k, 1);
-    if (!reduceMotion2) requestAnimationFrame(frame);
-  }
-  frame();
-}
-new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); viz(); } }, { rootMargin: "200px" }).observe($("#see"));
-
-// ---------- try the math: the app's own stealth code, run on demo keys for the typed handle ----------
-let S2 = null;
-async function demoKeys(name) {
-  const h = async (s) => new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
-  const a = await h("ghost demo spend " + name), b = await h("ghost demo view " + name);
-  const sig = "0x" + [...a, ...b, 27].map((x) => x.toString(16).padStart(2, "0")).join("");
-  return S2.keysFromSignature(sig);
-}
-let tryN = 0, tryKeys = null;
-async function tryReset() {
-  S2 ||= await import("/stealth.js");
-  const name = ($("#tryName").value.toLowerCase().replace(/[^a-z0-9_]/g, "") || "maya").slice(0, 20);
-  tryKeys = await demoKeys(name); tryN = 0; $("#tryList").innerHTML = "";
-  $("#tryMeta").textContent = "@" + name + " → st:rh:" + tryKeys.meta.slice(0, 26) + "…" + tryKeys.meta.slice(-8) + "  (demo keys)";
-  for (let i = 0; i < 3; i++) tryPay();
-}
-function tryPay() {
-  if (!tryKeys) return;
-  const s = S2.newStealth(tryKeys.meta);
-  const ok = !!S2.claimKey(tryKeys, s.ephemeral, s.viewTag, s.address);
-  const row = document.createElement("div"); row.className = "tryrow";
-  row.innerHTML = '<span class="n">#' + ++tryN + '</span><span class="a">' + s.address + "<small>ephemeral " + s.ephemeral.slice(0, 18) + "… · view tag " + s.viewTag + '</small></span><span class="ok">' + (ok ? "found by @" + $("#tryName").value.toLowerCase().replace(/[^a-z0-9_]/g, "") + "'s key" : "not found") + "</span>";
-  $("#tryList").prepend(row);
-  while ($("#tryList").children.length > 6) $("#tryList").lastChild.remove();
-}
-let tt; $("#tryName").addEventListener("input", () => { clearTimeout(tt); tt = setTimeout(tryReset, 300); });
-$("#tryGo").onclick = tryPay;
-new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); tryReset().catch(() => ($("#tryMeta").textContent = "could not load the crypto library, refresh")); } }, { rootMargin: "300px" }).observe($("#try"));

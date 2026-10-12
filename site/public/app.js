@@ -214,6 +214,8 @@ function drawAll() { drawWallet(); drawPay(); drawReceive(); drawInbox(); }
   drawTokens(); drawAll();
   await W.reconnect();
   try { S.myName = localStorage.getItem(CFG.app + ":name:" + (W.address || "").toLowerCase()) || ""; } catch {}
+  const qn = new URLSearchParams(location.search).get("name"); // from the landing page name check
+  if (qn && /^[a-z0-9_]{3,20}$/.test(qn)) $("#rcvName").value = qn;
   const m = location.pathname.match(/^\/pay\/([a-z0-9_]{3,20})/);
   if (m) { $("#payTo").value = m[1]; resolveTo(); tab("pay"); }
   else tab(location.hash === "#inbox" ? "inbox" : location.hash === "#receive" ? "receive" : "pay");
