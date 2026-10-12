@@ -1,0 +1,19 @@
+{
+  "name": "ghostpay",
+  "compatibility_date": "2026-09-01",
+  // The static site (public/) and /api/* (announcements index, totals, name lookup).
+  "main": "worker/index.js",
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "ghostpayfin.xyz", "custom_domain": true },
+    { "pattern": "www.ghostpayfin.xyz", "custom_domain": true }
+  ],
+  "vars": { "RPC": "https://rpc.mainnet.chain.robinhood.com", "CHUNK": "5000000", "CHUNKS": "4" },
+  "kv_namespaces": [{ "binding": "KV", "id": "973d09ff34d546388bdd3d288446e662" }],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*", "/pay/*"]
+  }
+}
